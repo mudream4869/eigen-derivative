@@ -12,8 +12,8 @@ typedef function<double(VectorXd)> MultiVar;
 class Derivative{
 public:
     Derivative(){}
-    virtual Derivative diffPartial(int index){}
-    virtual double operator()(VectorXd vec){}
+    virtual Derivative* diffPartial(int index){}
+    virtual double call(VectorXd vec){}
 };
 
 
@@ -26,42 +26,75 @@ public:
     SingleDerivative(MultiVar _inst, vector<Derivative*> _inst_pd):
         inst(_inst),inst_pd(_inst_pd){}
 
-    Derivative diffPartial(int index){
-        return *inst_pd[index];
+    Derivative* diffPartial(int index){
+        return inst_pd[index];
     }
 
-    double operator()(VectorXd vec){
+    double call(VectorXd vec){
         return inst(vec);
     }
 };
 
 
-class ZeroDerivative : public Derivative{
+class ConstantDerivative : public Derivative{
+private:
+    double a;
+
 public:
-    ZeroDerivative(){}
+    ConstantDerivative(double _a):a(_a){}
     
-    Derivative diffPartial(int index){
-        return *this;
+    Derivative* diffPartial(int index){
+        return new ConstantDerivative(0);
     }
     
-    double operator()(VectorXd vec){
-        return 0;
+    double call(VectorXd vec){
+        return a;
     }
 };
 
+
+class LinearDerivative : public Derivative{
+private:
+    VectorXd v;
+
+public:
+    LinearDerivative(VectorXd _v){
+        v = _v;
+    }
+ 
+    Derivative* diffPartial(int index){
+        return new ConstantDerivative(v[index]);
+    }
+    
+    double call(VectorXd vec){
+        return v.transpose()*vec;
+    }
+};
 
 
 class DerivativeAdd : public Derivative{
 private:
-    Derivative a, b;
+    Derivative* a;
+    Derivative* b;
 
 public:
-    DerivativeAdd(Derivative _a, Derivative _b){a = _a, b = _b;}
-    Derivative diffPartial(int index);
+    DerivativeAdd(Derivative* _a, Derivative* _b){a = _a, b = _b;}
+    Derivative* diffPartial(int index);
     double operator()(VectorXd vec){
-        return a(vec) + b(vec);
+        return a->call(vec) + b->call(vec);
     }
 };
 
 
-Derivative operator+(Derivative a, Derivative b){return DerivativeAdd(a, b);}
+class DerivativeMultiply : public Derivative{
+private:
+    Derivative* a;
+    Derivative* b;
+
+public:
+    DerivativeMultiply(Derivative* _a, Derivative* _b){a = _a, b = _b;}
+    Derivative* diffPartial(int index);
+    double operator()(VectorXd vec){
+        return a->call(vec) * b->call(vec);
+    }
+};
