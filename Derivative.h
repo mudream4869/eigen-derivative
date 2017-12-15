@@ -98,3 +98,22 @@ public:
         return a->call(vec) * b->call(vec);
     }
 };
+
+
+class Wrapper{
+public:
+    Derivative* inst;
+    Wrapper(Derivative* _inst):inst(_inst){}
+    Wrapper diffPartial(int index){return inst->diffPartial(index);}
+    double operator()(VectorXd vec){return inst->call(vec);}
+};
+
+
+Wrapper operator+(Wrapper a, Wrapper b){
+    return new DerivativeAdd(a.inst, b.inst);
+}
+
+
+Wrapper operator*(Wrapper a, Wrapper b){
+    return new DerivativeMultiply(a.inst, b.inst);
+}
