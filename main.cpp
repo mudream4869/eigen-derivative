@@ -23,9 +23,24 @@ int main(){
     Wrapper z = new LinearDerivative(v2);
     Wrapper f = xpy + five*z*z;
 
-    std::cout << f(v1) << std::endl;
+    std::cout << f.diffPartial(0)(v1) << std::endl;
+    std::cout << f.diffPartial(2)(v2) << std::endl;
 
+    // Variable Derivative
 
-    
+    VectorXd v3(2);
+    v3 << 3, 4;
+    Wrapper x = new VariableDerivative(0);
+    Wrapper y = new VariableDerivative(1);
+    Wrapper g = x*x + x*y + y*y;
+    std::cout << g.diffPartial(0)(v) << std::endl;
+    std::cout << g.diffPartial(1)(v) << std::endl;
+
+    // Divide
+
+    Wrapper h = 1/(x*x + 1);
+    std::cout << h(v3) << std::endl;
+    std::cout << h.diffPartial(0)(v3) << std::endl;
+
     return 0;
 }

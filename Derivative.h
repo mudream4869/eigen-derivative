@@ -53,6 +53,24 @@ public:
 };
 
 
+class VariableDerivative : public Derivative{
+private:
+    int ind;
+
+public:
+    VariableDerivative(int _ind):ind(_ind){}
+    
+    Derivative* diffPartial(int index){
+        return new ConstantDerivative(index == ind);
+    }
+    
+    double call(VectorXd vec){
+        return vec[ind];
+    }
+};
+
+
+
 class LinearDerivative : public Derivative{
 private:
     VectorXd v;
@@ -114,10 +132,25 @@ public:
 };
 
 
+class DerivativeDivide : public Derivative{
+private:
+    Derivative* a;
+    Derivative* b;
+
+public:
+    DerivativeDivide(Derivative* _a, Derivative* _b){a = _a, b = _b;}
+    Derivative* diffPartial(int index);
+    double call(VectorXd vec){
+        return a->call(vec) / b->call(vec);
+    }
+};
+
+
 class Wrapper{
 public:
     Derivative* inst;
     Wrapper(Derivative* _inst):inst(_inst){}
+    Wrapper(double x):inst(new ConstantDerivative(x)){}
     Wrapper diffPartial(int index){return inst->diffPartial(index);}
     double operator()(VectorXd vec){return inst->call(vec);}
 };
@@ -128,6 +161,16 @@ Wrapper operator+(Wrapper a, Wrapper b){
 }
 
 
+Wrapper operator-(Wrapper a, Wrapper b){
+    return new DerivativeSub(a.inst, b.inst);
+}
+
+
 Wrapper operator*(Wrapper a, Wrapper b){
     return new DerivativeMultiply(a.inst, b.inst);
+}
+
+
+Wrapper operator/(Wrapper a, Wrapper b){
+    return new DerivativeDivide(a.inst, b.inst);
 }
