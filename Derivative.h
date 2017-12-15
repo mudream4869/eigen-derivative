@@ -20,14 +20,14 @@ public:
 class SingleDerivative : public Derivative{
 private:
     MultiVar inst;
-    vector<Derivative*> inst_pd;
+    function<Derivative*(int)> inst_pd;
 
 public:
-    SingleDerivative(MultiVar _inst, vector<Derivative*> _inst_pd):
+    SingleDerivative(MultiVar _inst, function<Derivative*(int)> _inst_pd):
         inst(_inst),inst_pd(_inst_pd){}
 
     Derivative* diffPartial(int index){
-        return inst_pd[index];
+        return inst_pd(index);
     }
 
     double call(VectorXd vec){
@@ -80,8 +80,22 @@ private:
 public:
     DerivativeAdd(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double operator()(VectorXd vec){
+    double call(VectorXd vec){
         return a->call(vec) + b->call(vec);
+    }
+};
+
+
+class DerivativeSub : public Derivative{
+private:
+    Derivative* a;
+    Derivative* b;
+
+public:
+    DerivativeSub(Derivative* _a, Derivative* _b){a = _a, b = _b;}
+    Derivative* diffPartial(int index);
+    double call(VectorXd vec){
+        return a->call(vec) - b->call(vec);
     }
 };
 
@@ -94,7 +108,7 @@ private:
 public:
     DerivativeMultiply(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double operator()(VectorXd vec){
+    double call(VectorXd vec){
         return a->call(vec) * b->call(vec);
     }
 };
