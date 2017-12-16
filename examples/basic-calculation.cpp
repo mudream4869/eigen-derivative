@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Derivative.cpp"
 
+using Eigen::Wrapper;
+using Eigen::VariableDerivative;
+
 int main(){
 
     // Variable Derivative

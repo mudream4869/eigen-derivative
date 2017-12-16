@@ -8,12 +8,13 @@ using std::vector;
 
 typedef function<double(VectorXd)> MultiVar;
 
+namespace Eigen{
 
 class Derivative{
 public:
     Derivative(){}
     virtual Derivative* diffPartial(int index){}
-    virtual double call(VectorXd vec){}
+    virtual double call(VectorXd vec) const {}
 };
 
 
@@ -30,7 +31,7 @@ public:
         return inst_pd(index);
     }
 
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return inst(vec);
     }
 };
@@ -47,7 +48,7 @@ public:
         return new ConstantDerivative(0);
     }
     
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return a;
     }
 };
@@ -64,7 +65,7 @@ public:
         return new ConstantDerivative(index == ind);
     }
     
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return vec[ind];
     }
 };
@@ -84,7 +85,7 @@ public:
         return new ConstantDerivative(v[index]);
     }
     
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return v.transpose()*vec;
     }
 };
@@ -98,7 +99,7 @@ private:
 public:
     DerivativeAdd(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return a->call(vec) + b->call(vec);
     }
 };
@@ -112,7 +113,7 @@ private:
 public:
     DerivativeSub(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return a->call(vec) - b->call(vec);
     }
 };
@@ -126,7 +127,7 @@ private:
 public:
     DerivativeMultiply(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return a->call(vec) * b->call(vec);
     }
 };
@@ -140,7 +141,7 @@ private:
 public:
     DerivativeDivide(Derivative* _a, Derivative* _b){a = _a, b = _b;}
     Derivative* diffPartial(int index);
-    double call(VectorXd vec){
+    double call(VectorXd vec) const {
         return a->call(vec) / b->call(vec);
     }
 };
@@ -149,10 +150,19 @@ public:
 class Wrapper{
 public:
     Derivative* inst;
+    Wrapper():inst(nullptr){}
     Wrapper(Derivative* _inst):inst(_inst){}
     Wrapper(double x):inst(new ConstantDerivative(x)){}
-    Wrapper diffPartial(int index){return inst->diffPartial(index);}
-    double operator()(VectorXd vec){return inst->call(vec);}
+
+    Wrapper diffPartial(int index){
+        assert(inst);
+        return inst->diffPartial(index);
+    }
+
+    double operator()(VectorXd vec) const {
+        assert(inst);
+        return inst->call(vec);
+    }
 };
 
 
@@ -174,3 +184,5 @@ Wrapper operator*(Wrapper a, Wrapper b){
 Wrapper operator/(Wrapper a, Wrapper b){
     return new DerivativeDivide(a.inst, b.inst);
 }
+
+} // Namespace Eigen
