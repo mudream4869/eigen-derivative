@@ -1,2 +1,6 @@
-main: main.cpp Derivative.cpp Derivative.h
-	g++ main.cpp -o main.out -I eigen/ -std=c++11
+all: examples
+
+examples: basic-calculation.out
+
+basic-calculation.out: examples/basic-calculation.cpp Derivative.cpp Derivative.h
+	g++ examples/basic-calculation.cpp -o basic-calculation.out -I eigen/ -I . -std=c++11
