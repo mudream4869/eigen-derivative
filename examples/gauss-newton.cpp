@@ -24,7 +24,7 @@ VectorXd GaussNewtonMethod(vector<Wrapper> fs, VectorXd x){
         for(int lx = 0;lx < x_size;lx++)
             Jac[lf][lx] = fs[lf].diffPartial(lx);
     
-    for(int iter = 0;iter < 200000;iter++){
+    for(int iter = 0;iter < 200;iter++){
         MatrixXd J(f_size, x_size);
         for(int lf = 0;lf < f_size;lf++)
             for(int lx = 0;lx < x_size;lx++)
@@ -35,9 +35,7 @@ VectorXd GaussNewtonMethod(vector<Wrapper> fs, VectorXd x){
             rx[lf] = fs[lf](x);
 
         MatrixXd invJ = J.completeOrthogonalDecomposition().pseudoInverse();
-        x += invJ*rx;
-
-        std::cout << x.transpose() << std::endl;
+        x -= invJ*rx;
     }
 
     return x;
@@ -45,13 +43,13 @@ VectorXd GaussNewtonMethod(vector<Wrapper> fs, VectorXd x){
 
 int main(){
     // Solve : xx + yy + zz = 2
-    //          x + y + z = 1
+    //          x + y + 100*z = 1
 
     Wrapper x = new VariableDerivative(0),
             y = new VariableDerivative(1),
             z = new VariableDerivative(2);
 
-    Wrapper f1 = x*x + y*y + z*z - 2, f2 = x + y + z - 1;
+    Wrapper f1 = x*x + y*y + z*z - 2, f2 = x + y + 100*z - 1;
 
     VectorXd v(3);
     v << 1, 1, 1;
