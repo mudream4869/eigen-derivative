@@ -1,5 +1,5 @@
 # eigen-derivative
-Calculate multivariate derivative function base on Eigen &lt;3
+Calculate multivariable function's derivative base on Eigen &lt;3
 
 # Example
 
@@ -30,3 +30,9 @@ int main(){
     return 0;
 }
 ```
+
+# TODO 
+
+- [ ] GC
+- [ ] ostream output
+- [ ] more operators
