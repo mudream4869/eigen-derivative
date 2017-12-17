@@ -32,6 +32,51 @@ ptrDerivativeNode newDerivativeDivideNode(const ptrDerivativeNode& a, const ptrD
     return ptrDerivativeNode(new DerivativeDivideNode(a, b));
 }
 
+void LinearDerivativeNode::print(std::ostream& stream) const {
+    stream << "(";
+    for(int lx = 0;lx < v.size();lx++){
+        stream << v[lx] << "x[" << lx << "]";
+        if(lx+1 < v.size())
+            stream << " + ";
+    }
+    return;
+}
+
+void DerivativeAddNode::print(std::ostream& stream) const {
+    stream << "("; 
+    a->print(stream);
+    stream << " + ";
+    b->print(stream);
+    stream << ")"; 
+    return;
+}
+
+void DerivativeSubNode::print(std::ostream& stream) const {
+    stream << "("; 
+    a->print(stream);
+    stream << " - ";
+    b->print(stream);
+    stream << ")"; 
+    return;
+}
+
+void DerivativeMultiplyNode::print(std::ostream& stream) const {
+    stream << "("; 
+    a->print(stream);
+    stream << " * ";
+    b->print(stream);
+    stream << ")"; 
+    return;
+}
+
+void DerivativeDivideNode::print(std::ostream& stream) const {
+    stream << "("; 
+    a->print(stream);
+    stream << " / ";
+    b->print(stream);
+    stream << ")"; 
+    return;
+}
 
 ptrDerivativeNode DerivativeAddNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);

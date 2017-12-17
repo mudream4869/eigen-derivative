@@ -103,15 +103,7 @@ public:
         return v.transpose()*vec;
     }
 
-    void print(std::ostream& stream) const {
-        stream << "(";
-        for(int lx = 0;lx < v.size();lx++){
-            stream << v[lx] << "x[" << lx << "]";
-            if(lx+1 < v.size())
-                stream << " + ";
-        }
-        return;
-    }
+    void print(std::ostream& stream) const;
 };
 
 
@@ -126,14 +118,7 @@ public:
         return a->call(vec) + b->call(vec);
     }
 
-    void print(std::ostream& stream) const {
-        stream << "("; 
-        a->print(stream);
-        stream << " + ";
-        b->print(stream);
-        stream << ")"; 
-        return;
-    }
+    void print(std::ostream& stream) const;
 };
 
 
@@ -148,14 +133,7 @@ public:
         return a->call(vec) - b->call(vec);
     }
 
-    void print(std::ostream& stream) const {
-        stream << "("; 
-        a->print(stream);
-        stream << " - ";
-        b->print(stream);
-        stream << ")"; 
-        return;
-    }
+    void print(std::ostream& stream) const;
 };
 
 
@@ -170,14 +148,7 @@ public:
         return a->call(vec) * b->call(vec);
     }
 
-    void print(std::ostream& stream) const {
-        stream << "("; 
-        a->print(stream);
-        stream << " * ";
-        b->print(stream);
-        stream << ")"; 
-        return;
-    }
+    void print(std::ostream& stream) const;
 };
 
 
@@ -192,14 +163,7 @@ public:
         return a->call(vec) / b->call(vec);
     }
 
-    void print(std::ostream& stream) const {
-        stream << "("; 
-        a->print(stream);
-        stream << " / ";
-        b->print(stream);
-        stream << ")"; 
-        return;
-    }
+    void print(std::ostream& stream) const;
 };
 
 
