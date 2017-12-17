@@ -10,7 +10,6 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 using Eigen::Wrapper;
-using Eigen::VariableDerivative;
 
 using std::function;
 using std::vector;
@@ -192,7 +191,7 @@ int main(){
     //              x >= 0 
     //              y >= 0 
 
-    Wrapper par_x = new VariableDerivative(0), par_y = new VariableDerivative(1);
+    Wrapper par_x = Wrapper::Variable(0), par_y = Wrapper::Variable(1);
     Wrapper obj_f = par_x + par_y;
 
     Wrapper con_h1 = par_x*par_x + par_y*par_y - 1,

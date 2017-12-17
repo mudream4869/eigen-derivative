@@ -1,30 +1,30 @@
 #include "Derivative.h"
 
-Eigen::Derivative* Eigen::DerivativeAdd::diffPartial(int index){
+Eigen::DerivativeNode* Eigen::DerivativeAddNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeAdd(ad, bd); 
+    return new DerivativeAddNode(ad, bd); 
 }
 
-Eigen::Derivative* Eigen::DerivativeSub::diffPartial(int index){
+Eigen::DerivativeNode* Eigen::DerivativeSubNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeSub(ad, bd);
+    return new DerivativeSubNode(ad, bd);
 }
 
-Eigen::Derivative* Eigen::DerivativeMultiply::diffPartial(int index){
+Eigen::DerivativeNode* Eigen::DerivativeMultiplyNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeAdd(
-        new DerivativeMultiply(ad, b),
-        new DerivativeMultiply(bd, a)
+    return new DerivativeAddNode(
+        new DerivativeMultiplyNode(ad, b),
+        new DerivativeMultiplyNode(bd, a)
     );
 }
 
-Eigen::Derivative* Eigen::DerivativeDivide::diffPartial(int index){
+Eigen::DerivativeNode* Eigen::DerivativeDivideNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeDivide(
-        new DerivativeSub(
-            new DerivativeMultiply(ad, b),
-            new DerivativeMultiply(bd, a)
+    return new DerivativeDivideNode(
+        new DerivativeSubNode(
+            new DerivativeMultiplyNode(ad, b),
+            new DerivativeMultiplyNode(bd, a)
         ),
-        new DerivativeMultiply(b, b)
+        new DerivativeMultiplyNode(b, b)
     );
 }

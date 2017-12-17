@@ -10,7 +10,6 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 using Eigen::Wrapper;
-using Eigen::VariableDerivative;
 
 using std::function;
 using std::vector;
@@ -45,9 +44,9 @@ int main(){
     // Solve : xx + yy + zz = 2
     //          x + y + 100*z = 1
 
-    Wrapper x = new VariableDerivative(0),
-            y = new VariableDerivative(1),
-            z = new VariableDerivative(2);
+    Wrapper x = Wrapper::Variable(0),
+            y = Wrapper::Variable(1),
+            z = Wrapper::Variable(2);
 
     Wrapper f1 = x*x + y*y + z*z - 2, f2 = x + y + 100*z - 1;
 

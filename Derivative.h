@@ -10,42 +10,23 @@ typedef function<double(VectorXd)> MultiVar;
 
 namespace Eigen{
 
-class Derivative{
+class DerivativeNode{
 public:
-    Derivative(){}
-    virtual Derivative* diffPartial(int index){}
+    DerivativeNode(){}
+    virtual DerivativeNode* diffPartial(int index){}
     virtual double call(VectorXd vec) const {}
 };
 
 
-class SingleDerivative : public Derivative{
-private:
-    MultiVar inst;
-    function<Derivative*(int)> inst_pd;
-
-public:
-    SingleDerivative(MultiVar _inst, function<Derivative*(int)> _inst_pd):
-        inst(_inst),inst_pd(_inst_pd){}
-
-    Derivative* diffPartial(int index){
-        return inst_pd(index);
-    }
-
-    double call(VectorXd vec) const {
-        return inst(vec);
-    }
-};
-
-
-class ConstantDerivative : public Derivative{
+class ConstantDerivativeNode : public DerivativeNode{
 private:
     double a;
 
 public:
-    ConstantDerivative(double _a):a(_a){}
+    ConstantDerivativeNode(double _a):a(_a){}
     
-    Derivative* diffPartial(int index){
-        return new ConstantDerivative(0);
+    DerivativeNode* diffPartial(int index){
+        return new ConstantDerivativeNode(0);
     }
     
     double call(VectorXd vec) const {
@@ -54,15 +35,15 @@ public:
 };
 
 
-class VariableDerivative : public Derivative{
+class VariableDerivativeNode : public DerivativeNode{
 private:
     int ind;
 
 public:
-    VariableDerivative(int _ind):ind(_ind){}
+    VariableDerivativeNode(int _ind):ind(_ind){}
     
-    Derivative* diffPartial(int index){
-        return new ConstantDerivative(index == ind);
+    DerivativeNode* diffPartial(int index){
+        return new ConstantDerivativeNode(index == ind);
     }
     
     double call(VectorXd vec) const {
@@ -72,17 +53,17 @@ public:
 
 
 
-class LinearDerivative : public Derivative{
+class LinearDerivativeNode : public DerivativeNode{
 private:
     VectorXd v;
 
 public:
-    LinearDerivative(VectorXd _v){
+    LinearDerivativeNode(VectorXd _v){
         v = _v;
     }
  
-    Derivative* diffPartial(int index){
-        return new ConstantDerivative(v[index]);
+    DerivativeNode* diffPartial(int index){
+        return new ConstantDerivativeNode(v[index]);
     }
     
     double call(VectorXd vec) const {
@@ -91,56 +72,56 @@ public:
 };
 
 
-class DerivativeAdd : public Derivative{
+class DerivativeAddNode : public DerivativeNode{
 private:
-    Derivative* a;
-    Derivative* b;
+    DerivativeNode* a;
+    DerivativeNode* b;
 
 public:
-    DerivativeAdd(Derivative* _a, Derivative* _b){a = _a, b = _b;}
-    Derivative* diffPartial(int index);
+    DerivativeAddNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
+    DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) + b->call(vec);
     }
 };
 
 
-class DerivativeSub : public Derivative{
+class DerivativeSubNode : public DerivativeNode{
 private:
-    Derivative* a;
-    Derivative* b;
+    DerivativeNode* a;
+    DerivativeNode* b;
 
 public:
-    DerivativeSub(Derivative* _a, Derivative* _b){a = _a, b = _b;}
-    Derivative* diffPartial(int index);
+    DerivativeSubNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
+    DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) - b->call(vec);
     }
 };
 
 
-class DerivativeMultiply : public Derivative{
+class DerivativeMultiplyNode : public DerivativeNode{
 private:
-    Derivative* a;
-    Derivative* b;
+    DerivativeNode* a;
+    DerivativeNode* b;
 
 public:
-    DerivativeMultiply(Derivative* _a, Derivative* _b){a = _a, b = _b;}
-    Derivative* diffPartial(int index);
+    DerivativeMultiplyNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
+    DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) * b->call(vec);
     }
 };
 
 
-class DerivativeDivide : public Derivative{
+class DerivativeDivideNode : public DerivativeNode{
 private:
-    Derivative* a;
-    Derivative* b;
+    DerivativeNode* a;
+    DerivativeNode* b;
 
 public:
-    DerivativeDivide(Derivative* _a, Derivative* _b){a = _a, b = _b;}
-    Derivative* diffPartial(int index);
+    DerivativeDivideNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
+    DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) / b->call(vec);
     }
@@ -149,10 +130,13 @@ public:
 
 class Wrapper{
 public:
-    Derivative* inst;
-    Wrapper():inst(nullptr){}
-    Wrapper(Derivative* _inst):inst(_inst){}
-    Wrapper(double x):inst(new ConstantDerivative(x)){}
+    DerivativeNode* inst;
+    Wrapper(DerivativeNode* _inst = nullptr):inst(_inst){}
+    Wrapper(double x):inst(new ConstantDerivativeNode(x)){}
+
+    static Wrapper Variable(int ind){
+        return new VariableDerivativeNode(ind);
+    }
 
     Wrapper diffPartial(int index){
         assert(inst);
@@ -167,22 +151,22 @@ public:
 
 
 Wrapper operator+(Wrapper a, Wrapper b){
-    return new DerivativeAdd(a.inst, b.inst);
+    return new DerivativeAddNode(a.inst, b.inst);
 }
 
 
 Wrapper operator-(Wrapper a, Wrapper b){
-    return new DerivativeSub(a.inst, b.inst);
+    return new DerivativeSubNode(a.inst, b.inst);
 }
 
 
 Wrapper operator*(Wrapper a, Wrapper b){
-    return new DerivativeMultiply(a.inst, b.inst);
+    return new DerivativeMultiplyNode(a.inst, b.inst);
 }
 
 
 Wrapper operator/(Wrapper a, Wrapper b){
-    return new DerivativeDivide(a.inst, b.inst);
+    return new DerivativeDivideNode(a.inst, b.inst);
 }
 
 } // Namespace Eigen
