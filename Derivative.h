@@ -1,6 +1,8 @@
 #include <Eigen/Dense>
 #include <functional>
+#include <cassert>
 #include <vector>
+#include <iostream>
 
 using Eigen::VectorXd;
 using std::function;
@@ -13,8 +15,17 @@ namespace Eigen{
 class DerivativeNode{
 public:
     DerivativeNode(){}
-    virtual DerivativeNode* diffPartial(int index){}
-    virtual double call(VectorXd vec) const {}
+    virtual DerivativeNode* diffPartial(int index){
+        assert(0 and "DerivativeNode doesn't implement.");
+    }
+
+    virtual double call(VectorXd vec) const {
+        assert(0 and "DerivativeNode doesn't implement.");
+    }
+
+    virtual void print(std::ostream& stream) const {
+        assert(0 and "DerivativeNode doesn't implement.");
+    }
 };
 
 
@@ -32,6 +43,11 @@ public:
     double call(VectorXd vec) const {
         return a;
     }
+
+    void print(std::ostream& stream) const {
+        stream << a;
+        return;
+    }
 };
 
 
@@ -48,6 +64,11 @@ public:
     
     double call(VectorXd vec) const {
         return vec[ind];
+    }
+
+    void print(std::ostream& stream) const {
+        stream << "x[" << ind << "]";
+        return;
     }
 };
 
@@ -69,6 +90,16 @@ public:
     double call(VectorXd vec) const {
         return v.transpose()*vec;
     }
+
+    void print(std::ostream& stream) const {
+        stream << "(";
+        for(int lx = 0;lx < v.size();lx++){
+            stream << v[lx] << "x[" << lx << "]";
+            if(lx+1 < v.size())
+                stream << " + ";
+        }
+        return;
+    }
 };
 
 
@@ -82,6 +113,15 @@ public:
     DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) + b->call(vec);
+    }
+
+    void print(std::ostream& stream) const {
+        stream << "("; 
+        a->print(stream);
+        stream << " + ";
+        b->print(stream);
+        stream << ")"; 
+        return;
     }
 };
 
@@ -97,6 +137,15 @@ public:
     double call(VectorXd vec) const {
         return a->call(vec) - b->call(vec);
     }
+
+    void print(std::ostream& stream) const {
+        stream << "("; 
+        a->print(stream);
+        stream << " - ";
+        b->print(stream);
+        stream << ")"; 
+        return;
+    }
 };
 
 
@@ -111,6 +160,15 @@ public:
     double call(VectorXd vec) const {
         return a->call(vec) * b->call(vec);
     }
+
+    void print(std::ostream& stream) const {
+        stream << "("; 
+        a->print(stream);
+        stream << " * ";
+        b->print(stream);
+        stream << ")"; 
+        return;
+    }
 };
 
 
@@ -124,6 +182,15 @@ public:
     DerivativeNode* diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) / b->call(vec);
+    }
+
+    void print(std::ostream& stream) const {
+        stream << "("; 
+        a->print(stream);
+        stream << " / ";
+        b->print(stream);
+        stream << ")"; 
+        return;
     }
 };
 
@@ -149,6 +216,10 @@ public:
     }
 };
 
+std::ostream& operator<< (std::ostream& stream, const Derivative& a){
+    a.inst->print(stream);
+    return stream;
+}
 
 Derivative operator+(Derivative a, Derivative b);
 Derivative operator-(Derivative a, Derivative b);

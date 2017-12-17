@@ -15,6 +15,8 @@ int main(){
     std::cout << g.diffPartial(0)(v3) << std::endl;
     std::cout << g.diffPartial(1)(v3) << std::endl;
 
+    std::cout << g.diffPartial(0) << std::endl;
+
     // Divide
 
     Derivative h = 1/(x*x + 1);
