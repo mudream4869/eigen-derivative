@@ -34,5 +34,5 @@ int main(){
 # TODO 
 
 - [x] ostream output
-- [ ] GC
+- [x] GC
 - [ ] more operators

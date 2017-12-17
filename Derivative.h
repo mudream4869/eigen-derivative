@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <limits>
+#include <memory> 
 
 using Eigen::VectorXd;
 using std::function;
@@ -14,10 +15,13 @@ typedef function<double(VectorXd)> MultiVar;
 
 namespace Eigen{
 
+class DerivativeNode;
+typedef std::shared_ptr<DerivativeNode> ptrDerivativeNode;
+
 class DerivativeNode{
 public:
     DerivativeNode(){}
-    virtual DerivativeNode* diffPartial(int index){
+    virtual ptrDerivativeNode diffPartial(int index){
         assert(0 and "DerivativeNode doesn't implement.");
     }
 
@@ -40,8 +44,8 @@ private:
 public:
     ConstantDerivativeNode(double _a):a(_a){}
     
-    DerivativeNode* diffPartial(int index){
-        return new ConstantDerivativeNode(0);
+    ptrDerivativeNode diffPartial(int index){
+        return ptrDerivativeNode(new ConstantDerivativeNode(0));
     }
     
     double call(VectorXd vec) const {
@@ -66,8 +70,8 @@ private:
 public:
     VariableDerivativeNode(int _ind):ind(_ind){}
     
-    DerivativeNode* diffPartial(int index){
-        return new ConstantDerivativeNode(index == ind);
+    ptrDerivativeNode diffPartial(int index){
+        return ptrDerivativeNode(new ConstantDerivativeNode(index == ind));
     }
     
     double call(VectorXd vec) const {
@@ -91,8 +95,8 @@ public:
         v = _v;
     }
  
-    DerivativeNode* diffPartial(int index){
-        return new ConstantDerivativeNode(v[index]);
+    ptrDerivativeNode diffPartial(int index){
+        return ptrDerivativeNode(new ConstantDerivativeNode(v[index]));
     }
     
     double call(VectorXd vec) const {
@@ -113,12 +117,11 @@ public:
 
 class DerivativeAddNode : public DerivativeNode{
 private:
-    DerivativeNode* a;
-    DerivativeNode* b;
+    ptrDerivativeNode a, b;
 
 public:
-    DerivativeAddNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
-    DerivativeNode* diffPartial(int index);
+    DerivativeAddNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
+    ptrDerivativeNode diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) + b->call(vec);
     }
@@ -136,12 +139,11 @@ public:
 
 class DerivativeSubNode : public DerivativeNode{
 private:
-    DerivativeNode* a;
-    DerivativeNode* b;
+    ptrDerivativeNode a, b;
 
 public:
-    DerivativeSubNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
-    DerivativeNode* diffPartial(int index);
+    DerivativeSubNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
+    ptrDerivativeNode diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) - b->call(vec);
     }
@@ -159,12 +161,11 @@ public:
 
 class DerivativeMultiplyNode : public DerivativeNode{
 private:
-    DerivativeNode* a;
-    DerivativeNode* b;
+    ptrDerivativeNode a, b;
 
 public:
-    DerivativeMultiplyNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
-    DerivativeNode* diffPartial(int index);
+    DerivativeMultiplyNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
+    ptrDerivativeNode diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) * b->call(vec);
     }
@@ -182,12 +183,11 @@ public:
 
 class DerivativeDivideNode : public DerivativeNode{
 private:
-    DerivativeNode* a;
-    DerivativeNode* b;
+    ptrDerivativeNode a, b;
 
 public:
-    DerivativeDivideNode(DerivativeNode* _a, DerivativeNode* _b){a = _a, b = _b;}
-    DerivativeNode* diffPartial(int index);
+    DerivativeDivideNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
+    ptrDerivativeNode diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) / b->call(vec);
     }
@@ -205,12 +205,12 @@ public:
 
 class Derivative{
 public:
-    DerivativeNode* inst;
-    Derivative(DerivativeNode* _inst = nullptr):inst(_inst){}
+    ptrDerivativeNode inst;
+    Derivative(ptrDerivativeNode _inst = nullptr):inst(_inst){}
     Derivative(double x):inst(new ConstantDerivativeNode(x)){}
 
     static Derivative Variable(int ind){
-        return new VariableDerivativeNode(ind);
+        return ptrDerivativeNode(new VariableDerivativeNode(ind));
     }
 
     Derivative diffPartial(int index){
@@ -229,9 +229,9 @@ std::ostream& operator<< (std::ostream& stream, const Derivative& a){
     return stream;
 }
 
-Derivative operator+(Derivative a, Derivative b);
-Derivative operator-(Derivative a, Derivative b);
-Derivative operator*(Derivative a, Derivative b);
-Derivative operator/(Derivative a, Derivative b);
+Derivative operator+(const Derivative& a, const Derivative& b);
+Derivative operator-(const Derivative& a, const Derivative& b);
+Derivative operator*(const Derivative& a, const Derivative& b);
+Derivative operator/(const Derivative& a, const Derivative& b);
 
 } // Namespace Eigen

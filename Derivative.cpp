@@ -2,48 +2,48 @@
 
 namespace Eigen{
 
-DerivativeNode* newDerivativeAddNode(DerivativeNode* a, DerivativeNode* b){
+ptrDerivativeNode newDerivativeAddNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
     if(b->isConstant(0)) return a;
     if(a->isConstant(0)) return b;
 
-    return new DerivativeAddNode(a, b);
+    return ptrDerivativeNode(new DerivativeAddNode(a, b));
 }
 
-DerivativeNode* newDerivativeSubNode(DerivativeNode* a, DerivativeNode* b){
+ptrDerivativeNode newDerivativeSubNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
     if(b->isConstant(0)) return a;
 
-    return new DerivativeSubNode(a, b);
+    return ptrDerivativeNode(new DerivativeSubNode(a, b));
 }
 
-DerivativeNode* newDerivativeMultiplyNode(DerivativeNode* a, DerivativeNode* b){
+ptrDerivativeNode newDerivativeMultiplyNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
     if(a->isConstant(0) or b->isConstant(0))
-        return new ConstantDerivativeNode(0);
+        return ptrDerivativeNode(new ConstantDerivativeNode(0));
     if(a->isConstant(1)) return b;
     if(b->isConstant(1)) return a;
 
-    return new DerivativeMultiplyNode(a, b);
+    return ptrDerivativeNode(new DerivativeMultiplyNode(a, b));
 }
 
-DerivativeNode* newDerivativeDivideNode(DerivativeNode* a, DerivativeNode* b){
+ptrDerivativeNode newDerivativeDivideNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
     if(a->isConstant(0))
-        return new ConstantDerivativeNode(0);
+        return ptrDerivativeNode(new ConstantDerivativeNode(0));
     if(b->isConstant(1)) return a;
 
-    return new DerivativeDivideNode(a, b);
+    return ptrDerivativeNode(new DerivativeDivideNode(a, b));
 }
 
 
-DerivativeNode* DerivativeAddNode::diffPartial(int index){
+ptrDerivativeNode DerivativeAddNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(ad, bd); 
 }
 
-DerivativeNode* DerivativeSubNode::diffPartial(int index){
+ptrDerivativeNode DerivativeSubNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeSubNode(ad, bd);
 }
 
-DerivativeNode* DerivativeMultiplyNode::diffPartial(int index){
+ptrDerivativeNode DerivativeMultiplyNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(
         newDerivativeMultiplyNode(ad, b),
@@ -51,7 +51,7 @@ DerivativeNode* DerivativeMultiplyNode::diffPartial(int index){
     );
 }
 
-DerivativeNode* DerivativeDivideNode::diffPartial(int index){
+ptrDerivativeNode DerivativeDivideNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeDivideNode(
         newDerivativeSubNode(
@@ -62,19 +62,19 @@ DerivativeNode* DerivativeDivideNode::diffPartial(int index){
     );
 }
 
-Derivative operator+(Derivative a, Derivative b){
+Derivative operator+(const Derivative& a, const Derivative& b){
     return newDerivativeAddNode(a.inst, b.inst);
 }
 
-Derivative operator-(Derivative a, Derivative b){
+Derivative operator-(const Derivative& a, const Derivative& b){
     return newDerivativeSubNode(a.inst, b.inst);
 }
 
-Derivative operator*(Derivative a, Derivative b){
+Derivative operator*(const Derivative& a, const Derivative& b){
     return newDerivativeMultiplyNode(a.inst, b.inst);
 }
 
-Derivative operator/(Derivative a, Derivative b){
+Derivative operator/(const Derivative& a, const Derivative& b){
     return newDerivativeDivideNode(a.inst, b.inst);
 }
 
