@@ -33,6 +33,6 @@ int main(){
 
 # TODO 
 
+- [x] ostream output
 - [ ] GC
-- [ ] ostream output
 - [ ] more operators
