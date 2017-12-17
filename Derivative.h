@@ -3,6 +3,8 @@
 #include <cassert>
 #include <vector>
 #include <iostream>
+#include <cmath>
+#include <limits>
 
 using Eigen::VectorXd;
 using std::function;
@@ -26,6 +28,8 @@ public:
     virtual void print(std::ostream& stream) const {
         assert(0 and "DerivativeNode doesn't implement.");
     }
+
+    virtual bool isConstant(double c) const { return false; }
 };
 
 
@@ -47,6 +51,10 @@ public:
     void print(std::ostream& stream) const {
         stream << a;
         return;
+    }
+
+    bool isConstant(double c) const {
+        return std::abs(a-c) < std::numeric_limits<double>::min();
     }
 };
 

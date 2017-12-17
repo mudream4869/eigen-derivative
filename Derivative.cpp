@@ -2,49 +2,66 @@
 
 namespace Eigen{
 
+DerivativeNode* newDerivativeAddNode(DerivativeNode* a, DerivativeNode* b){
+    return new DerivativeAddNode(a, b);
+}
+
+DerivativeNode* newDerivativeSubNode(DerivativeNode* a, DerivativeNode* b){
+    return new DerivativeSubNode(a, b);
+}
+
+DerivativeNode* newDerivativeMultiplyNode(DerivativeNode* a, DerivativeNode* b){
+    return new DerivativeMultiplyNode(a, b);
+}
+
+DerivativeNode* newDerivativeDivideNode(DerivativeNode* a, DerivativeNode* b){
+    return new DerivativeDivideNode(a, b);
+}
+
+
 DerivativeNode* DerivativeAddNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeAddNode(ad, bd); 
+    return newDerivativeAddNode(ad, bd); 
 }
 
 DerivativeNode* DerivativeSubNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeSubNode(ad, bd);
+    return newDerivativeSubNode(ad, bd);
 }
 
 DerivativeNode* DerivativeMultiplyNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeAddNode(
-        new DerivativeMultiplyNode(ad, b),
-        new DerivativeMultiplyNode(bd, a)
+    return newDerivativeAddNode(
+        newDerivativeMultiplyNode(ad, b),
+        newDerivativeMultiplyNode(bd, a)
     );
 }
 
 DerivativeNode* DerivativeDivideNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
-    return new DerivativeDivideNode(
-        new DerivativeSubNode(
-            new DerivativeMultiplyNode(ad, b),
-            new DerivativeMultiplyNode(bd, a)
+    return newDerivativeDivideNode(
+        newDerivativeSubNode(
+            newDerivativeMultiplyNode(ad, b),
+            newDerivativeMultiplyNode(bd, a)
         ),
-        new DerivativeMultiplyNode(b, b)
+        newDerivativeMultiplyNode(b, b)
     );
 }
 
 Derivative operator+(Derivative a, Derivative b){
-    return new DerivativeAddNode(a.inst, b.inst);
+    return newDerivativeAddNode(a.inst, b.inst);
 }
 
 Derivative operator-(Derivative a, Derivative b){
-    return new DerivativeSubNode(a.inst, b.inst);
+    return newDerivativeSubNode(a.inst, b.inst);
 }
 
 Derivative operator*(Derivative a, Derivative b){
-    return new DerivativeMultiplyNode(a.inst, b.inst);
+    return newDerivativeMultiplyNode(a.inst, b.inst);
 }
 
 Derivative operator/(Derivative a, Derivative b){
-    return new DerivativeDivideNode(a.inst, b.inst);
+    return newDerivativeDivideNode(a.inst, b.inst);
 }
 
 } // Namespace Eigen
