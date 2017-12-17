@@ -32,6 +32,7 @@ int main(){
     Timer t1; 
     auto dp = p.diffPartial(0);
     std::cout << "Partial differential cost " << t1() << "s" << std::endl;
+    std::cout << dp << std::endl;
 
     Timer t2;
     std::cout << dp(v) << std::endl; 

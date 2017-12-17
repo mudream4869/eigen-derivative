@@ -3,18 +3,32 @@
 namespace Eigen{
 
 DerivativeNode* newDerivativeAddNode(DerivativeNode* a, DerivativeNode* b){
+    if(b->isConstant(0)) return a;
+    if(a->isConstant(0)) return b;
+
     return new DerivativeAddNode(a, b);
 }
 
 DerivativeNode* newDerivativeSubNode(DerivativeNode* a, DerivativeNode* b){
+    if(b->isConstant(0)) return a;
+
     return new DerivativeSubNode(a, b);
 }
 
 DerivativeNode* newDerivativeMultiplyNode(DerivativeNode* a, DerivativeNode* b){
+    if(a->isConstant(0) or b->isConstant(0))
+        return new ConstantDerivativeNode(0);
+    if(a->isConstant(1)) return b;
+    if(b->isConstant(1)) return a;
+
     return new DerivativeMultiplyNode(a, b);
 }
 
 DerivativeNode* newDerivativeDivideNode(DerivativeNode* a, DerivativeNode* b){
+    if(a->isConstant(0))
+        return new ConstantDerivativeNode(0);
+    if(b->isConstant(1)) return a;
+
     return new DerivativeDivideNode(a, b);
 }
 
