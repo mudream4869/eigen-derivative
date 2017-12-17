@@ -150,23 +150,9 @@ public:
 };
 
 
-Derivative operator+(Derivative a, Derivative b){
-    return new DerivativeAddNode(a.inst, b.inst);
-}
-
-
-Derivative operator-(Derivative a, Derivative b){
-    return new DerivativeSubNode(a.inst, b.inst);
-}
-
-
-Derivative operator*(Derivative a, Derivative b){
-    return new DerivativeMultiplyNode(a.inst, b.inst);
-}
-
-
-Derivative operator/(Derivative a, Derivative b){
-    return new DerivativeDivideNode(a.inst, b.inst);
-}
+Derivative operator+(Derivative a, Derivative b);
+Derivative operator-(Derivative a, Derivative b);
+Derivative operator*(Derivative a, Derivative b);
+Derivative operator/(Derivative a, Derivative b);
 
 } // Namespace Eigen

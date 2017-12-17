@@ -1,16 +1,18 @@
 #include "Derivative.h"
 
-Eigen::DerivativeNode* Eigen::DerivativeAddNode::diffPartial(int index){
+namespace Eigen{
+
+DerivativeNode* DerivativeAddNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return new DerivativeAddNode(ad, bd); 
 }
 
-Eigen::DerivativeNode* Eigen::DerivativeSubNode::diffPartial(int index){
+DerivativeNode* DerivativeSubNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return new DerivativeSubNode(ad, bd);
 }
 
-Eigen::DerivativeNode* Eigen::DerivativeMultiplyNode::diffPartial(int index){
+DerivativeNode* DerivativeMultiplyNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return new DerivativeAddNode(
         new DerivativeMultiplyNode(ad, b),
@@ -18,7 +20,7 @@ Eigen::DerivativeNode* Eigen::DerivativeMultiplyNode::diffPartial(int index){
     );
 }
 
-Eigen::DerivativeNode* Eigen::DerivativeDivideNode::diffPartial(int index){
+DerivativeNode* DerivativeDivideNode::diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return new DerivativeDivideNode(
         new DerivativeSubNode(
@@ -28,3 +30,21 @@ Eigen::DerivativeNode* Eigen::DerivativeDivideNode::diffPartial(int index){
         new DerivativeMultiplyNode(b, b)
     );
 }
+
+Derivative operator+(Derivative a, Derivative b){
+    return new DerivativeAddNode(a.inst, b.inst);
+}
+
+Derivative operator-(Derivative a, Derivative b){
+    return new DerivativeSubNode(a.inst, b.inst);
+}
+
+Derivative operator*(Derivative a, Derivative b){
+    return new DerivativeMultiplyNode(a.inst, b.inst);
+}
+
+Derivative operator/(Derivative a, Derivative b){
+    return new DerivativeDivideNode(a.inst, b.inst);
+}
+
+} // Namespace Eigen
