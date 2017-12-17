@@ -7,18 +7,25 @@ Calculate multivariate derivative function base on Eigen &lt;3
 #include <iostream>
 #include "Derivative.cpp"
 
-int main(){
-    VectorXd v(2);
-    v << 3, 4;
-    Wrapper x = new VariableDerivative(0);
-    Wrapper y = new VariableDerivative(1);
-    Wrapper g = x*x + x*y + y*y;
-    std::cout << g(v) << std::endl;
-    std::cout << g.diffPartial(1)(v) << std::endl;
+using Eigen::Derivative;
 
-    Wrapper h = 1/(x*x + 1);
-    std::cout << h(v) << std::endl;
-    std::cout << h.diffPartial(0)(v) << std::endl;
+int main(){
+
+    // Variable Derivative
+
+    VectorXd v3(2);
+    v3 << 3, 4;
+    Derivative x = Derivative::Variable(0);
+    Derivative y = Derivative::Variable(1);
+    Derivative g = x*x + x*y + y*y;
+    std::cout << g.diffPartial(0)(v3) << std::endl;
+    std::cout << g.diffPartial(1)(v3) << std::endl;
+
+    // Divide
+
+    Derivative h = 1/(x*x + 1);
+    std::cout << h(v3) << std::endl;
+    std::cout << h.diffPartial(0)(v3) << std::endl;
 
     return 0;
 }
