@@ -9,7 +9,7 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-using Eigen::Wrapper;
+using Eigen::Derivative;
 
 using std::function;
 using std::vector;
@@ -105,17 +105,17 @@ VectorXd doIPM(
 // Solve : min  obj_f
 //         sub  con_hs >= 0 
 
-VectorXd Wrapper_IPM(Wrapper obj_f, vector<Wrapper> con_hs, VectorXd start_guess){
+VectorXd Derivative_IPM(Derivative obj_f, vector<Derivative> con_hs, VectorXd start_guess){
     int x_size = start_guess.size(), h_size = con_hs.size();
 
-    vector<Wrapper> v1w(x_size);
-    vector< vector<Wrapper> > v2w(x_size, v1w);
+    vector<Derivative> v1w(x_size);
+    vector< vector<Derivative> > v2w(x_size, v1w);
 
-    vector<Wrapper> f_gradient = v1w;
-    vector< vector<Wrapper> > f_hess = v2w;
+    vector<Derivative> f_gradient = v1w;
+    vector< vector<Derivative> > f_hess = v2w;
 
-    vector< vector<Wrapper> > hs_gradient(h_size, v1w);
-    vector< vector< vector<Wrapper> > > hs_hess(h_size, v2w);
+    vector< vector<Derivative> > hs_gradient(h_size, v1w);
+    vector< vector< vector<Derivative> > > hs_hess(h_size, v2w);
 
     // Prebuild differiential function
     
@@ -191,42 +191,42 @@ int main(){
     //              x >= 0 
     //              y >= 0 
 
-    Wrapper par_x = Wrapper::Variable(0), par_y = Wrapper::Variable(1);
-    Wrapper obj_f = par_x + par_y;
+    Derivative par_x = Derivative::Variable(0), par_y = Derivative::Variable(1);
+    Derivative obj_f = par_x + par_y;
 
-    Wrapper con_h1 = par_x*par_x + par_y*par_y - 1,
-            con_h2 = par_x,
-            con_h3 = par_y;
+    Derivative con_h1 = par_x*par_x + par_y*par_y - 1,
+               con_h2 = par_x,
+               con_h3 = par_y;
 
     // Multiple initial value
     VectorXd x(2);
     
     x << 1, 1;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
 
     x << 1, 2;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
 
     x << 2, 1;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
     
     x << 4, -1;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
 
     x << -1, 4;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
 
     x << 0.2, 0.7;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
 
     x << 0.5, 0.5;
     std::cout << "x initial as " << x.transpose() << std::endl;
-    std::cout << Wrapper_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
+    std::cout << Derivative_IPM(obj_f, {con_h1, con_h2, con_h3}, x).transpose() << std::endl;
     return 0;
 }

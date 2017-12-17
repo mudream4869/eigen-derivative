@@ -128,17 +128,17 @@ public:
 };
 
 
-class Wrapper{
+class Derivative{
 public:
     DerivativeNode* inst;
-    Wrapper(DerivativeNode* _inst = nullptr):inst(_inst){}
-    Wrapper(double x):inst(new ConstantDerivativeNode(x)){}
+    Derivative(DerivativeNode* _inst = nullptr):inst(_inst){}
+    Derivative(double x):inst(new ConstantDerivativeNode(x)){}
 
-    static Wrapper Variable(int ind){
+    static Derivative Variable(int ind){
         return new VariableDerivativeNode(ind);
     }
 
-    Wrapper diffPartial(int index){
+    Derivative diffPartial(int index){
         assert(inst);
         return inst->diffPartial(index);
     }
@@ -150,22 +150,22 @@ public:
 };
 
 
-Wrapper operator+(Wrapper a, Wrapper b){
+Derivative operator+(Derivative a, Derivative b){
     return new DerivativeAddNode(a.inst, b.inst);
 }
 
 
-Wrapper operator-(Wrapper a, Wrapper b){
+Derivative operator-(Derivative a, Derivative b){
     return new DerivativeSubNode(a.inst, b.inst);
 }
 
 
-Wrapper operator*(Wrapper a, Wrapper b){
+Derivative operator*(Derivative a, Derivative b){
     return new DerivativeMultiplyNode(a.inst, b.inst);
 }
 
 
-Wrapper operator/(Wrapper a, Wrapper b){
+Derivative operator/(Derivative a, Derivative b){
     return new DerivativeDivideNode(a.inst, b.inst);
 }
 
