@@ -23,5 +23,15 @@ int main(){
     std::cout << h(v3) << std::endl;
     std::cout << h.diffPartial(0)(v3) << std::endl;
 
+    // More
+    
+    Derivative p = exp(x*x) + log(x);
+    std::cout << p << std::endl;
+    std::cout << p.diffPartial(0) << std::endl;
+
+    Derivative p2 = pow(x, 2.5);
+    std::cout << p2 << std::endl;
+    std::cout << p2.diffPartial(0).diffPartial(0) << std::endl;
+
     return 0;
 }

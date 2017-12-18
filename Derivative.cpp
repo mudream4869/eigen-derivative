@@ -32,6 +32,18 @@ ptrDerivativeNode newDerivativeDivideNode(const ptrDerivativeNode& a, const ptrD
     return ptrDerivativeNode(new DerivativeDivideNode(a, b));
 }
 
+ptrDerivativeNode newDerivativePowNode(const ptrDerivativeNode& a, double p){
+    return ptrDerivativeNode(new DerivativePowNode(a, p));
+}
+
+ptrDerivativeNode newDerivativeExpNode(const ptrDerivativeNode& a){
+    return ptrDerivativeNode(new DerivativeExpNode(a));
+}
+
+ptrDerivativeNode newDerivativeLogNode(const ptrDerivativeNode& a){
+    return ptrDerivativeNode(new DerivativeLogNode(a));
+}
+
 void LinearDerivativeNode::print(std::ostream& stream) const {
     stream << "(";
     for(int lx = 0;lx < v.size();lx++){
@@ -78,6 +90,27 @@ void DerivativeDivideNode::print(std::ostream& stream) const {
     return;
 }
 
+void DerivativePowNode::print(std::ostream& stream) const {
+    stream << "("; 
+    a->print(stream);
+    stream << "**" << p << ")";
+    return;
+}
+
+void DerivativeExpNode::print(std::ostream& stream) const {
+    stream << "Exp("; 
+    a->print(stream);
+    stream << ")"; 
+    return;
+}
+
+void DerivativeLogNode::print(std::ostream& stream) const {
+    stream << "Log("; 
+    a->print(stream);
+    stream << ")"; 
+    return;
+}
+
 ptrDerivativeNode DerivativeAddNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(ad, bd); 
@@ -107,6 +140,27 @@ ptrDerivativeNode DerivativeDivideNode::_diffPartial(int index){
     );
 }
 
+ptrDerivativeNode DerivativePowNode::_diffPartial(int index){
+    return newDerivativeMultiplyNode(
+        ptrDerivativeNode(new ConstantDerivativeNode(p)),
+        newDerivativePowNode(a, p-1)
+    );
+}
+
+ptrDerivativeNode DerivativeExpNode::_diffPartial(int index){
+    return newDerivativeMultiplyNode(
+        a->diffPartial(index),
+        newDerivativeExpNode(a)
+    );
+}
+
+ptrDerivativeNode DerivativeLogNode::_diffPartial(int index){
+    return newDerivativeDivideNode(
+        a->diffPartial(index), a
+    );
+}
+
+
 Derivative operator+(const Derivative& a, const Derivative& b){
     return newDerivativeAddNode(a.inst, b.inst);
 }
@@ -121,6 +175,18 @@ Derivative operator*(const Derivative& a, const Derivative& b){
 
 Derivative operator/(const Derivative& a, const Derivative& b){
     return newDerivativeDivideNode(a.inst, b.inst);
+}
+
+Derivative pow(const Derivative& a, double p){
+    return newDerivativePowNode(a.inst, p);
+}
+
+Derivative exp(const Derivative& a){
+    return newDerivativeExpNode(a.inst);
+}
+
+Derivative log(const Derivative& a){
+    return newDerivativeLogNode(a.inst);
 }
 
 } // Namespace Eigen

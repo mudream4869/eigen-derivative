@@ -179,6 +179,52 @@ public:
 };
 
 
+class DerivativePowNode : public DerivativeNode{
+private:
+    ptrDerivativeNode a;
+    double p;
+
+public:
+    DerivativePowNode(const ptrDerivativeNode& _a, double _p){a = _a, p = _p;}
+    ptrDerivativeNode _diffPartial(int index);
+    double call(VectorXd vec) const {
+        return std::pow(a->call(vec), p);
+    }
+
+    void print(std::ostream& stream) const;
+};
+
+
+class DerivativeExpNode : public DerivativeNode{
+private:
+    ptrDerivativeNode a;
+
+public:
+    DerivativeExpNode(const ptrDerivativeNode& _a){a = _a;}
+    ptrDerivativeNode _diffPartial(int index);
+    double call(VectorXd vec) const {
+        return std::exp(a->call(vec));
+    }
+
+    void print(std::ostream& stream) const;
+};
+
+
+class DerivativeLogNode : public DerivativeNode{
+private:
+    ptrDerivativeNode a;
+
+public:
+    DerivativeLogNode(const ptrDerivativeNode& _a){a = _a;}
+    ptrDerivativeNode _diffPartial(int index);
+    double call(VectorXd vec) const {
+        return std::log(a->call(vec));
+    }
+
+    void print(std::ostream& stream) const;
+};
+
+
 class Derivative{
 public:
     ptrDerivativeNode inst;
@@ -209,5 +255,7 @@ Derivative operator+(const Derivative& a, const Derivative& b);
 Derivative operator-(const Derivative& a, const Derivative& b);
 Derivative operator*(const Derivative& a, const Derivative& b);
 Derivative operator/(const Derivative& a, const Derivative& b);
+Derivative exp(const Derivative& a);
+Derivative log(const Derivative& a);
 
 } // Namespace Eigen
