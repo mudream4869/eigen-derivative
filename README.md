@@ -35,4 +35,4 @@ int main(){
 
 - [x] ostream output
 - [x] GC
-- [ ] more operators
+- [x] more operators
