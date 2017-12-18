@@ -1,7 +1,6 @@
 #include <Eigen/Dense>
 #include <functional>
 #include <cassert>
-#include <vector>
 #include <iostream>
 #include <cmath>
 #include <limits>
@@ -10,7 +9,6 @@
 
 using Eigen::VectorXd;
 using std::function;
-using std::vector;
 
 typedef function<double(VectorXd)> MultiVar;
 
@@ -22,7 +20,6 @@ typedef std::shared_ptr<DerivativeNode> ptrDerivativeNode;
 class DerivativeNode{
 private:
     std::map<int, ptrDerivativeNode> dp_map;
-
 
 public:
     DerivativeNode(){}
@@ -246,6 +243,7 @@ public:
     }
 };
 
+
 std::ostream& operator<< (std::ostream& stream, const Derivative& a){
     a.inst->print(stream);
     return stream;
@@ -257,5 +255,6 @@ Derivative operator*(const Derivative& a, const Derivative& b);
 Derivative operator/(const Derivative& a, const Derivative& b);
 Derivative exp(const Derivative& a);
 Derivative log(const Derivative& a);
+Derivative pow(const Derivative& a, double p);
 
 } // Namespace Eigen
