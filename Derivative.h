@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <memory> 
+#include <map>
 
 using Eigen::VectorXd;
 using std::function;
@@ -19,11 +20,22 @@ class DerivativeNode;
 typedef std::shared_ptr<DerivativeNode> ptrDerivativeNode;
 
 class DerivativeNode{
+private:
+    std::map<int, ptrDerivativeNode> dp_map;
+
+
 public:
     DerivativeNode(){}
-    virtual ptrDerivativeNode diffPartial(int index){
-        assert(0 and "DerivativeNode doesn't implement.");
+
+    ptrDerivativeNode diffPartial(int index){
+        if(not dp_map.count(index))
+            dp_map[index] = this->_diffPartial(index);
+        return dp_map[index];
     }
+
+    virtual ptrDerivativeNode _diffPartial(int index){
+        assert(0 and "DerivativeNode doesn't implement.");
+    }   
 
     virtual double call(VectorXd vec) const {
         assert(0 and "DerivativeNode doesn't implement.");
@@ -44,7 +56,7 @@ private:
 public:
     ConstantDerivativeNode(double _a):a(_a){}
     
-    ptrDerivativeNode diffPartial(int index){
+    ptrDerivativeNode _diffPartial(int index){
         return ptrDerivativeNode(new ConstantDerivativeNode(0));
     }
     
@@ -70,7 +82,7 @@ private:
 public:
     VariableDerivativeNode(int _ind):ind(_ind){}
     
-    ptrDerivativeNode diffPartial(int index){
+    ptrDerivativeNode _diffPartial(int index){
         return ptrDerivativeNode(new ConstantDerivativeNode(index == ind));
     }
     
@@ -95,7 +107,7 @@ public:
         v = _v;
     }
  
-    ptrDerivativeNode diffPartial(int index){
+    ptrDerivativeNode _diffPartial(int index){
         return ptrDerivativeNode(new ConstantDerivativeNode(v[index]));
     }
     
@@ -113,7 +125,7 @@ private:
 
 public:
     DerivativeAddNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode diffPartial(int index);
+    ptrDerivativeNode _diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) + b->call(vec);
     }
@@ -128,7 +140,7 @@ private:
 
 public:
     DerivativeSubNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode diffPartial(int index);
+    ptrDerivativeNode _diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) - b->call(vec);
     }
@@ -143,7 +155,7 @@ private:
 
 public:
     DerivativeMultiplyNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode diffPartial(int index);
+    ptrDerivativeNode _diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) * b->call(vec);
     }
@@ -158,7 +170,7 @@ private:
 
 public:
     DerivativeDivideNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode diffPartial(int index);
+    ptrDerivativeNode _diffPartial(int index);
     double call(VectorXd vec) const {
         return a->call(vec) / b->call(vec);
     }

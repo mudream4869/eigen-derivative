@@ -78,17 +78,17 @@ void DerivativeDivideNode::print(std::ostream& stream) const {
     return;
 }
 
-ptrDerivativeNode DerivativeAddNode::diffPartial(int index){
+ptrDerivativeNode DerivativeAddNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(ad, bd); 
 }
 
-ptrDerivativeNode DerivativeSubNode::diffPartial(int index){
+ptrDerivativeNode DerivativeSubNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeSubNode(ad, bd);
 }
 
-ptrDerivativeNode DerivativeMultiplyNode::diffPartial(int index){
+ptrDerivativeNode DerivativeMultiplyNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(
         newDerivativeMultiplyNode(ad, b),
@@ -96,7 +96,7 @@ ptrDerivativeNode DerivativeMultiplyNode::diffPartial(int index){
     );
 }
 
-ptrDerivativeNode DerivativeDivideNode::diffPartial(int index){
+ptrDerivativeNode DerivativeDivideNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeDivideNode(
         newDerivativeSubNode(
