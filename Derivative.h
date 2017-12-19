@@ -34,7 +34,7 @@ public:
         assert(0 and "DerivativeNode doesn't implement.");
     }   
 
-    virtual double call(VectorXd vec) const {
+    virtual double call(const VectorXd& vec) const {
         assert(0 and "DerivativeNode doesn't implement.");
     }
 
@@ -57,7 +57,7 @@ public:
         return ptrDerivativeNode(new ConstantDerivativeNode(0));
     }
     
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return a;
     }
 
@@ -83,7 +83,7 @@ public:
         return ptrDerivativeNode(new ConstantDerivativeNode(index == ind));
     }
     
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return vec[ind];
     }
 
@@ -108,7 +108,7 @@ public:
         return ptrDerivativeNode(new ConstantDerivativeNode(v[index]));
     }
     
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return v.transpose()*vec;
     }
 
@@ -123,7 +123,7 @@ private:
 public:
     DerivativeAddNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return a->call(vec) + b->call(vec);
     }
 
@@ -138,7 +138,7 @@ private:
 public:
     DerivativeSubNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return a->call(vec) - b->call(vec);
     }
 
@@ -153,7 +153,7 @@ private:
 public:
     DerivativeMultiplyNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return a->call(vec) * b->call(vec);
     }
 
@@ -168,7 +168,7 @@ private:
 public:
     DerivativeDivideNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return a->call(vec) / b->call(vec);
     }
 
@@ -184,7 +184,7 @@ private:
 public:
     DerivativePowNode(const ptrDerivativeNode& _a, double _p){a = _a, p = _p;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return std::pow(a->call(vec), p);
     }
 
@@ -199,7 +199,7 @@ private:
 public:
     DerivativeExpNode(const ptrDerivativeNode& _a){a = _a;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return std::exp(a->call(vec));
     }
 
@@ -214,7 +214,7 @@ private:
 public:
     DerivativeLogNode(const ptrDerivativeNode& _a){a = _a;}
     ptrDerivativeNode _diffPartial(int index);
-    double call(VectorXd vec) const {
+    double call(const VectorXd& vec) const {
         return std::log(a->call(vec));
     }
 
@@ -237,7 +237,7 @@ public:
         return inst->diffPartial(index);
     }
 
-    double operator()(VectorXd vec) const {
+    double operator()(const VectorXd& vec) const {
         assert(inst);
         return inst->call(vec);
     }
