@@ -2,7 +2,10 @@
 
 namespace Eigen{
 
+// newXXXNode implement some reduce when creating the node.
+
 ptrDerivativeNode newDerivativeAddNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
+    // Very simple reduce for one of node is 0
     if(b->isConstant(0)) return a;
     if(a->isConstant(0)) return b;
 
@@ -10,12 +13,14 @@ ptrDerivativeNode newDerivativeAddNode(const ptrDerivativeNode& a, const ptrDeri
 }
 
 ptrDerivativeNode newDerivativeSubNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
+    // Very simple reduce for one of node is 0
     if(b->isConstant(0)) return a;
 
     return ptrDerivativeNode(new DerivativeSubNode(a, b));
 }
 
 ptrDerivativeNode newDerivativeMultiplyNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
+    // Very simple reduce for one of node is 0 or 1
     if(a->isConstant(0) or b->isConstant(0))
         return ptrDerivativeNode(new ConstantDerivativeNode(0));
     if(a->isConstant(1)) return b;
@@ -25,6 +30,7 @@ ptrDerivativeNode newDerivativeMultiplyNode(const ptrDerivativeNode& a, const pt
 }
 
 ptrDerivativeNode newDerivativeDivideNode(const ptrDerivativeNode& a, const ptrDerivativeNode& b){
+    // Very simple reduce for one of node is 0 or 1
     if(a->isConstant(0))
         return ptrDerivativeNode(new ConstantDerivativeNode(0));
     if(b->isConstant(1)) return a;
@@ -44,13 +50,16 @@ ptrDerivativeNode newDerivativeLogNode(const ptrDerivativeNode& a){
     return ptrDerivativeNode(new DerivativeLogNode(a));
 }
 
+
 void LinearDerivativeNode::print(std::ostream& stream) const {
+    // TODO(Mudream): output more simple formula
     stream << "(";
     for(int lx = 0;lx < v.size();lx++){
         stream << v[lx] << "x[" << lx << "]";
         if(lx+1 < v.size())
             stream << " + ";
     }
+    stream << ")";
     return;
 }
 
@@ -111,6 +120,9 @@ void DerivativeLogNode::print(std::ostream& stream) const {
     return;
 }
 
+
+// Calculate the differential acording to differential rule
+
 ptrDerivativeNode DerivativeAddNode::_diffPartial(int index){
     auto ad = a->diffPartial(index), bd = b->diffPartial(index);
     return newDerivativeAddNode(ad, bd); 
@@ -160,6 +172,8 @@ ptrDerivativeNode DerivativeLogNode::_diffPartial(int index){
     );
 }
 
+
+// Operator on Wrapper
 
 Derivative operator+(const Derivative& a, const Derivative& b){
     return newDerivativeAddNode(a.inst, b.inst);
