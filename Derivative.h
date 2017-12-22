@@ -1,3 +1,6 @@
+#ifndef DERIVATIVE_H_
+#define DERIVATIVE_H_
+
 #include <Eigen/Dense>
 #include <functional>
 #include <cassert>
@@ -9,8 +12,6 @@
 
 using Eigen::VectorXd;
 using std::function;
-
-typedef function<double(VectorXd)> MultiVar;
 
 namespace Eigen{
 
@@ -258,3 +259,5 @@ Derivative log(const Derivative& a);
 Derivative pow(const Derivative& a, double p);
 
 } // Namespace Eigen
+
+#endif
