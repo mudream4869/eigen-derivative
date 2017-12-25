@@ -4,7 +4,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 
-#include "Derivative.cpp"
+#include "Derivative.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;

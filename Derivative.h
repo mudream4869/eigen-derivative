@@ -2,16 +2,11 @@
 #define DERIVATIVE_H_
 
 #include <Eigen/Dense>
-#include <functional>
-#include <cassert>
 #include <iostream>
-#include <cmath>
-#include <limits>
 #include <memory> 
 #include <map>
 
-using Eigen::VectorXd;
-using std::function;
+//using Eigen::VectorXd;
 
 namespace Eigen{
 
@@ -35,27 +30,12 @@ private:
 
 public:
     DerivativeNode(){}
+    ptrDerivativeNode diffPartial(int index);
 
-    ptrDerivativeNode diffPartial(int index){
-        // Save the calculated partial differential node to save time. 
-        if(not dp_map.count(index))
-            dp_map[index] = this->_diffPartial(index);
-        return dp_map[index];
-    }
-
-    virtual ptrDerivativeNode _diffPartial(int index){
-        assert(0 and "DerivativeNode doesn't implement partial differential function.");
-    }   
-
-    virtual double call(const VectorXd& vec) const {
-        assert(0 and "DerivativeNode doesn't implement call function.");
-    }
-
-    virtual void print(std::ostream& stream) const {
-        assert(0 and "DerivativeNode doesn't implement print function.");
-    }
-
-    virtual bool isConstant(double c) const { return false; }
+    virtual ptrDerivativeNode _diffPartial(int index);
+    virtual double call(const VectorXd& vec) const;
+    virtual void print(std::ostream& stream) const;
+    virtual bool isConstant(double c) const; 
 };
 
 
@@ -66,24 +46,12 @@ private:
     double a;
 
 public:
-    ConstantDerivativeNode(double _a):a(_a){}
+    ConstantDerivativeNode(double _a);
     
-    ptrDerivativeNode _diffPartial(int index){
-        return ptrDerivativeNode(new ConstantDerivativeNode(0));
-    }
-    
-    double call(const VectorXd& vec) const {
-        return a;
-    }
-
-    void print(std::ostream& stream) const {
-        stream << a;
-        return;
-    }
-
-    bool isConstant(double c) const {
-        return std::abs(a-c) < std::numeric_limits<double>::min();
-    }
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const; 
+    void print(std::ostream& stream) const; 
+    bool isConstant(double c) const;
 };
 
 
@@ -95,20 +63,11 @@ private:
     int ind;
 
 public:
-    VariableDerivativeNode(int _ind):ind(_ind){}
+    VariableDerivativeNode(int _ind);
     
-    ptrDerivativeNode _diffPartial(int index){
-        return ptrDerivativeNode(new ConstantDerivativeNode(index == ind));
-    }
-    
-    double call(const VectorXd& vec) const {
-        return vec[ind];
-    }
-
-    void print(std::ostream& stream) const {
-        stream << "x[" << ind << "]";
-        return;
-    }
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const; 
+    void print(std::ostream& stream) const;
 };
 
 
@@ -121,18 +80,10 @@ private:
     VectorXd v;
 
 public:
-    LinearDerivativeNode(VectorXd _v){
-        v = _v;
-    }
- 
-    ptrDerivativeNode _diffPartial(int index){
-        return ptrDerivativeNode(new ConstantDerivativeNode(v[index]));
-    }
-    
-    double call(const VectorXd& vec) const {
-        return v.transpose()*vec;
-    }
+    LinearDerivativeNode(VectorXd _v);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -142,12 +93,10 @@ private:
     ptrDerivativeNode a, b;
 
 public:
-    DerivativeAddNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return a->call(vec) + b->call(vec);
-    }
+    DerivativeAddNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -157,12 +106,10 @@ private:
     ptrDerivativeNode a, b;
 
 public:
-    DerivativeSubNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return a->call(vec) - b->call(vec);
-    }
+    DerivativeSubNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -172,12 +119,10 @@ private:
     ptrDerivativeNode a, b;
 
 public:
-    DerivativeMultiplyNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return a->call(vec) * b->call(vec);
-    }
+    DerivativeMultiplyNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -187,12 +132,10 @@ private:
     ptrDerivativeNode a, b;
 
 public:
-    DerivativeDivideNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b){a = _a, b = _b;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return a->call(vec) / b->call(vec);
-    }
+    DerivativeDivideNode(const ptrDerivativeNode& _a, const ptrDerivativeNode& _b);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -203,12 +146,10 @@ private:
     double p;
 
 public:
-    DerivativePowNode(const ptrDerivativeNode& _a, double _p){a = _a, p = _p;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return std::pow(a->call(vec), p);
-    }
+    DerivativePowNode(const ptrDerivativeNode& _a, double _p);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -219,12 +160,10 @@ private:
     ptrDerivativeNode a;
 
 public:
-    DerivativeExpNode(const ptrDerivativeNode& _a){a = _a;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return std::exp(a->call(vec));
-    }
+    DerivativeExpNode(const ptrDerivativeNode& _a);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -235,12 +174,10 @@ private:
     ptrDerivativeNode a;
 
 public:
-    DerivativeLogNode(const ptrDerivativeNode& _a){a = _a;}
-    ptrDerivativeNode _diffPartial(int index);
-    double call(const VectorXd& vec) const {
-        return std::log(a->call(vec));
-    }
+    DerivativeLogNode(const ptrDerivativeNode& _a);
 
+    ptrDerivativeNode _diffPartial(int index);
+    double call(const VectorXd& vec) const;
     void print(std::ostream& stream) const;
 };
 
@@ -249,32 +186,18 @@ public:
 class Derivative{
 public:
     ptrDerivativeNode inst;
-    Derivative(ptrDerivativeNode _inst = nullptr):inst(_inst){}
-    Derivative(double x):inst(new ConstantDerivativeNode(x)){}
+    Derivative(ptrDerivativeNode _inst = nullptr);
+    Derivative(double x);
     
     // Useful in demo ... 
-    static Derivative Variable(int ind){
-        return ptrDerivativeNode(new VariableDerivativeNode(ind));
-    }
+    static Derivative Variable(int ind);
 
-    Derivative diffPartial(int index){
-        // inst might be null
-        assert(inst);
-        return inst->diffPartial(index);
-    }
-
-    double operator()(const VectorXd& vec) const {
-        // inst might be null
-        assert(inst);
-        return inst->call(vec);
-    }
+    Derivative diffPartial(int index);
+    double operator()(const VectorXd& vec) const;
 };
 
 
-std::ostream& operator<< (std::ostream& stream, const Derivative& a){
-    a.inst->print(stream);
-    return stream;
-}
+std::ostream& operator<< (std::ostream& stream, const Derivative& a);
 
 
 // Operator on Wrapper
@@ -286,6 +209,6 @@ Derivative exp(const Derivative& a);
 Derivative log(const Derivative& a);
 Derivative pow(const Derivative& a, double p);
 
-} // Namespace Eigen
+} // namespace Eigen
 
-#endif
+#endif // DERIVATIVE_H_

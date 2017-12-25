@@ -1,7 +1,8 @@
 #include <iostream>
 #include <chrono>
-#include "Derivative.cpp"
+#include "Derivative.h"
 
+using Eigen::VectorXd;
 using Eigen::Derivative;
 
 struct Timer{

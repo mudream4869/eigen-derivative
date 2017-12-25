@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Derivative.cpp"
+#include "Derivative.h"
 
 using Eigen::Derivative;
 

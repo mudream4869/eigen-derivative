@@ -1,6 +1,7 @@
 #include <iostream>
-#include "Derivative.cpp"
+#include "Derivative.h"
 
+using Eigen::VectorXd;
 using Eigen::Derivative;
 
 int main(){
