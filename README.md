@@ -7,6 +7,7 @@ Calculate multivariable function's derivative base on Eigen &lt;3
 #include <iostream>
 #include "Derivative.cpp"
 
+using Eigen::VectorXd;
 using Eigen::Derivative;
 
 int main(){
@@ -31,8 +32,7 @@ int main(){
 }
 ```
 
-# TODO 
+# TODO
 
-- [x] ostream output
-- [x] GC
-- [x] more operators
+- [ ] Simple Reduce
+- [ ] R^n to R^m
